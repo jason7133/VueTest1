@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <input type="text" v-model="inputText" v-on:keyup.enter="add">
+        <button v-on:click="add">add</button>
+
+        <ul>
+            <li v-for="item, index in items">
+                {{ item }}
+                <button v-on:click="remove(index, item)">remove</button>
+            </li>
+        </ul>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>
+        function guid() {
+            function s4() {
+              return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+            }
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+              s4() + '-' + s4() + s4() + s4();
+          }
+
+          function getUUID() { // UUID v4 generator in JavaScript (RFC4122 compliant)
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+              var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 3 | 8);
+              return v.toString(16);
+            });
+          }
+    </script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                inputText: '',
+                items: []
+            },
+            methods: {
+                add: function() {
+                    if(this.inputText) {
+                        //console.log(this.inputText);
+
+                        var key = CryptoJS.MD5(getUUID());
+                        let value = this.inputText;
+                        this.items.push(value);
+                        localStorage.setItem(key, value)
+                        
+                        this.inputText = '';
+                    }
+                },
+                remove: function(index, item) {
+                    console.log(index, item);
+                    let key = localStorage.key(index);
+                    localStorage.removeItem(key);
+
+                    this.items.splice(index, 1);
+                }
+            },
+            created: function() {
+                for(let i = 0; i < localStorage.length; i++) {
+                    let key = localStorage.key(i)
+
+                    console.log(i, key);
+
+                    let item = localStorage.getItem(key);
+                    this.items.push(item);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
